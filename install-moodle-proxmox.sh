@@ -19,7 +19,6 @@
 set -euo pipefail
 
 # ======================== CONFIGURATION ========================
-CTID=106
 HOSTNAME="moodle"
 CORES=2
 MEMORY=4096
@@ -41,7 +40,6 @@ SITE_SHORTNAME="Moodle"
 
 echo "=== Moodle Proxmox LXC Installer ==="
 echo "Target: Moodle 5.3 LTS (PHP 8.3+, MariaDB 11.4+)"
-echo "Container ID: $CTID"
 echo
 
 if [[ $EUID -ne 0 ]]; then
@@ -49,10 +47,19 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if pct status "$CTID" &>/dev/null; then
-  echo "Container $CTID already exists. Choose a different CTID." >&2
-  exit 1
-fi
+# Find the next available CTID
+echo ">>> Finding next available container ID..."
+CTID=100
+while pct status "$CTID" &>/dev/null || pct list | awk '{print $1}' | grep -qx "$CTID"; do
+  CTID=$((CTID + 1))
+  if [[ $CTID -gt 999 ]]; then
+    echo "No free container ID found below 1000." >&2
+    exit 1
+  fi
+done
+
+echo "Using next available CTID: $CTID"
+echo
 
 # Network
 echo ">>> Network configuration (static IP)"
