@@ -365,7 +365,7 @@ SQL
 
 step "Downloading Moodle $MOODLE_VERSION" pct exec "$CTID" -- env BRANCH="$MOODLE_BRANCH" VERSION="$MOODLE_VERSION" bash -euo pipefail -c '
 cd /tmp
-wget -q -O moodle.tgz "https://packaging.moodle.org/stable$BRANCH/moodle-$VERSION.tgz"
+wget -q -O moodle.tgz "https://packaging.moodle.org/stable$BRANCH/moodle-latest-$BRANCH.tgz"   # newest weekly build
 [[ $(stat -c%s moodle.tgz) -gt 50000000 ]] || { echo "The Moodle download is too small, it probably failed."; exit 1; }
 tar -xzf moodle.tgz -C /var/www/
 rm moodle.tgz
@@ -448,6 +448,18 @@ CREDS
 }
 step "Finishing the configuration" finish
 
+# "update" inside the container fetches and runs the newest moodle-update.sh from this repository
+step "Adding the update command" ct <<'EOF'
+cat > /usr/local/bin/update <<'UPDATE'
+#!/usr/bin/env bash
+# Checks for and installs Moodle, PHP, MariaDB, Ubuntu and Composer updates (update --check: only show them).
+script="$(curl -fsSL https://raw.githubusercontent.com/GunsToy/moodle-proxmox-installer/main/moodle-update.sh)" ||
+  { echo "Could not download the update script from GitHub." >&2; exit 1; }
+exec bash -c "$script" update "$@"
+UPDATE
+chmod 755 /usr/local/bin/update
+EOF
+
 echo
 echo "${GN}Moodle ${MOODLE_RELEASE} is installed.${CL}"
 echo
@@ -466,3 +478,4 @@ if [[ "$NET" == "dhcp" ]]; then
   echo "  The IP comes from DHCP: reserve it in your router so the address stays the same."
 fi
 echo "  Sign in and change the admin password."
+echo "  Updates: inside the container run  update  (or  update --check  to only look)."

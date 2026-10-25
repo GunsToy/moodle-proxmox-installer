@@ -31,3 +31,29 @@ It also installs Apache and the Moodle cron job.
 ## Behind Nginx Proxy Manager
 
 Enter the public address (e.g. `https://training.example.com`) when asked. The script sets it as Moodle's address and adds `$CFG->sslproxy = true;`. In Nginx Proxy Manager, add a proxy host for that domain pointing at `http://<container IP>:80` with an SSL certificate.
+
+## Updates
+
+Inside the container (from the Proxmox host: `pct enter <id>`), run:
+
+```bash
+update            # check, show what is new, ask, then install
+update --check    # only show what is new
+```
+
+`update` downloads the newest `moodle-update.sh` from this repository and checks:
+
+- **Moodle**: a newer build of the installed version (e.g. 5.3.0 → 5.3.1) is part of the normal update. A new major version (e.g. 5.3 → 5.4) is only installed after a separate yes, together with the PHP and MariaDB versions it needs.
+- **PHP**: when the installed Moodle supports a newer PHP, it offers to switch (and switches back if Moodle's checks fail).
+- **Ubuntu packages**, including Apache and PHP/MariaDB security patches, and **Composer**.
+- **Add-on plugins**: lists available updates; install them in Moodle under *Site administration > Plugins > Plugins overview*.
+
+Before Moodle itself changes, the site goes into maintenance mode and the database and Moodle code are backed up to `/var/backups/moodle` (the newest 3 are kept). `config.php` and add-on plugins are carried over to the new code. If the Moodle upgrade fails, the previous code and database are put back. Course files in `/var/moodledata` are not part of that backup; keep the container in your Proxmox backups.
+
+For a container installed before the `update` command existed, add it with:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/GunsToy/moodle-proxmox-installer/main/moodle-update.sh -o /usr/local/sbin/moodle-update.sh && chmod 755 /usr/local/sbin/moodle-update.sh
+```
+
+and run `moodle-update.sh` (or `moodle-update.sh --check`).
