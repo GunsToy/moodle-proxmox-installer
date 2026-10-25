@@ -395,13 +395,17 @@ cat > /etc/apache2/sites-available/moodle.conf <<'APACHE'
 <VirtualHost *:80>
     ServerAdmin admin@localhost
     DocumentRoot /var/www/moodle/public
-    # Moodle's router: addresses without a file of their own go to r.php
     DirectoryIndex index.php
-    FallbackResource /r.php
     <Directory /var/www/moodle/public>
         Options FollowSymLinks
         AllowOverride All
         Require all granted
+        # Moodle's router: addresses that are not real files or folders go to r.php.
+        # Rewrite rules rather than FallbackResource, which misses routed addresses ending in .php.
+        RewriteEngine On
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteRule ^ r.php [QSA,L]
     </Directory>
     ErrorLog ${APACHE_LOG_DIR}/moodle_error.log
     CustomLog ${APACHE_LOG_DIR}/moodle_access.log combined
