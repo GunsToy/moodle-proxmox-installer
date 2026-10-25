@@ -1,0 +1,20 @@
+{
+  "install-moodle-proxmox.sh": {
+    "mtime": 1792956409.5587914,
+    "seen": 1792957605.2831607,
+    "ast_hash": "3387b8e76c5bfb78504b67a824351df0",
+    "semantic_hash": "3387b8e76c5bfb78504b67a824351df0"
+  },
+  "moodle-update.sh": {
+    "mtime": 1792956409.5585186,
+    "seen": 1792957605.2831788,
+    "ast_hash": "4719b8bc2364fc7cf6167ed5c5edbac8",
+    "semantic_hash": "4719b8bc2364fc7cf6167ed5c5edbac8"
+  },
+  "README.md": {
+    "mtime": 1792956255.3964653,
+    "seen": 1792957605.2831826,
+    "ast_hash": "513fcdf337358d0e9ef740555941cbdc",
+    "semantic_hash": "513fcdf337358d0e9ef740555941cbdc"
+  }
+}
