@@ -14,6 +14,7 @@
 #
 # The script will prompt for:
 # - Static IP, CIDR, and gateway
+# - Public web address (optional, for a site behind a reverse proxy) and admin email
 # - Container root password
 
 set -euo pipefail
@@ -25,7 +26,6 @@ MEMORY=4096
 SWAP=512
 DISK="Storage_pool:20"
 BRIDGE="vmbr0"
-TEMPLATE="ubuntu-24.04-standard_24.04-2_amd64.tar.zst"
 
 # Moodle / DB settings (passwords generated randomly)
 DB_NAME="moodle"
@@ -33,7 +33,6 @@ DB_USER="moodleuser"
 DB_PASS="$(openssl rand -base64 16 | tr -d '/+=' | head -c 16)"
 ADMIN_USER="admin"
 ADMIN_PASS="$(openssl rand -base64 12 | tr -d '/+=' | head -c 12)"
-ADMIN_EMAIL="admin@example.com"
 SITE_FULLNAME="My Moodle Site"
 SITE_SHORTNAME="Moodle"
 # ===============================================================
@@ -47,16 +46,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Find the next available CTID
-echo ">>> Finding next available container ID..."
-CTID=100
-while pct status "$CTID" &>/dev/null || pct list | awk '{print $1}' | grep -qx "$CTID"; do
-  CTID=$((CTID + 1))
-  if [[ $CTID -gt 999 ]]; then
-    echo "No free container ID found below 1000." >&2
-    exit 1
-  fi
-done
+# Next ID that no container or VM uses
+CTID="$(pvesh get /cluster/nextid)"
 
 echo "Using next available CTID: $CTID"
 echo
@@ -66,6 +57,12 @@ echo ">>> Network configuration (static IP)"
 read -rp "Enter static IP address for the container (e.g. 192.168.1.50): " STATIC_IP
 read -rp "Enter netmask in CIDR notation (e.g. 24): " CIDR
 read -rp "Enter gateway IP (e.g. 192.168.1.1): " GATEWAY
+
+echo
+echo ">>> Site"
+read -rp "Public web address behind a reverse proxy (e.g. https://training.example.com), blank for http://<IP>: " PUBLIC_URL
+PUBLIC_URL="${PUBLIC_URL%/}"
+read -rp "Admin email address: " ADMIN_EMAIL
 
 # Root password
 echo
@@ -83,15 +80,29 @@ if [[ -z "$ROOT_PASSWORD" || -z "$STATIC_IP" || -z "$CIDR" || -z "$GATEWAY" ]]; 
   echo "IP, CIDR, gateway, and root password are required." >&2
   exit 1
 fi
+if [[ ! "$ADMIN_EMAIL" =~ ^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$ ]]; then
+  echo "A valid admin email address is required." >&2
+  exit 1
+fi
+if [[ -n "$PUBLIC_URL" && ! "$PUBLIC_URL" =~ ^https?://[A-Za-z0-9.-]+(:[0-9]+)?(/[^[:space:]]*)?$ ]]; then
+  echo "The public web address must look like https://training.example.com" >&2
+  exit 1
+fi
 
 echo
 echo "Container will use: ${STATIC_IP}/${CIDR} via gateway ${GATEWAY}"
 echo
 
-# Download template if missing
+# Newest Ubuntu 24.04 template, downloaded if missing
 echo ">>> Checking / downloading Ubuntu 24.04 template..."
+pveam update || true
+TEMPLATE="$(pveam available --section system | awk '/ubuntu-24\.04-standard/ {print $2}' | sort -V | tail -1)"
+TEMPLATE="${TEMPLATE:-$(pveam list local | awk -F/ '/ubuntu-24\.04-standard/ {print $2}' | awk '{print $1}' | sort -V | tail -1)}"
+if [[ -z "$TEMPLATE" ]]; then
+  echo "No Ubuntu 24.04 template found (pveam available)." >&2
+  exit 1
+fi
 if ! pveam list local | grep -q "$TEMPLATE"; then
-  pveam update || true
   pveam download local "$TEMPLATE"
 fi
 
@@ -120,7 +131,7 @@ for i in {1..30}; do
 done
 
 CT_IP="$STATIC_IP"
-MOODLE_WWWROOT="http://$CT_IP"
+MOODLE_WWWROOT="${PUBLIC_URL:-http://$CT_IP}"
 echo "Container IP: $CT_IP"
 
 echo ">>> Installing Moodle stack inside container..."
@@ -129,7 +140,7 @@ pct exec "$CTID" -- bash -s <<'EOF'
 set -euo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get update || true
+apt-get update
 apt-get install -y locales software-properties-common ca-certificates apt-transport-https curl wget unzip gnupg2
 locale-gen en_US.UTF-8
 update-locale LANG=en_US.UTF-8
@@ -230,8 +241,25 @@ pct exec "$CTID" -- bash -c "chown -R www-data:www-data /var/www/moodle /var/moo
   --adminpass=\"$ADMIN_PASS\" \
   --adminemail=\"$ADMIN_EMAIL\""
 
+# Behind a reverse proxy that ends HTTPS, Moodle must trust it for https:// links and secure cookies
+if [[ "$MOODLE_WWWROOT" == https://* ]]; then
+  pct exec "$CTID" -- sed -i "s|^require_once(__DIR__ . '/lib/setup.php');|\$CFG->sslproxy = true;\n\n&|" /var/www/moodle/config.php
+  pct exec "$CTID" -- grep -q 'sslproxy = true' /var/www/moodle/config.php || { echo "Could not add sslproxy to config.php" >&2; exit 1; }
+fi
+
 pct exec "$CTID" -- chown -R www-data:www-data /var/www/moodle /var/moodledata
 pct exec "$CTID" -- chmod 640 /var/www/moodle/config.php 2>/dev/null || true
+
+# Credentials stay in a root-only file inside the container instead of the terminal scrollback
+pct exec "$CTID" -- bash -c "umask 077 && cat > /root/moodle-credentials.txt" <<CREDS
+Web URL     : $MOODLE_WWWROOT
+Admin user  : $ADMIN_USER
+Admin pass  : $ADMIN_PASS
+Admin email : $ADMIN_EMAIL
+DB name     : $DB_NAME
+DB user     : $DB_USER
+DB password : $DB_PASS
+CREDS
 
 echo
 echo "=========================================="
@@ -242,16 +270,17 @@ echo "Hostname     : $HOSTNAME"
 echo "IP Address   : $CT_IP"
 echo "Web URL      : $MOODLE_WWWROOT"
 echo "Admin user   : $ADMIN_USER"
-echo "Admin pass   : $ADMIN_PASS"
-echo "DB password  : $DB_PASS"
+echo "Passwords    : saved in the container, show them with"
+echo "               pct exec $CTID -- cat /root/moodle-credentials.txt"
 echo
 echo "Root password for container was set during prompts."
 echo
 echo "Next steps:"
-echo "  - Access the site and complete any remaining setup."
-echo "  - For production with Nginx Proxy Manager, set:"
-echo "      \$CFG->wwwroot = 'https://yourdomain.com';"
-echo "      \$CFG->sslproxy = true;"
-echo "      \$CFG->reverseproxy = true;"
-echo "  - Change default passwords if needed."
+if [[ "$MOODLE_WWWROOT" == https://* ]]; then
+  echo "  - In Nginx Proxy Manager, point ${MOODLE_WWWROOT#https://} at http://$CT_IP:80 with an SSL certificate."
+else
+  echo "  - To put it behind Nginx Proxy Manager later, set \$CFG->wwwroot to the https:// address"
+  echo "    and add \$CFG->sslproxy = true; in /var/www/moodle/config.php."
+fi
+echo "  - Sign in and change the admin password."
 echo "=========================================="
