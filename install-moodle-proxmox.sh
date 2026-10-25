@@ -373,11 +373,31 @@ mkdir -p /var/moodledata
 chown -R www-data:www-data /var/www/moodle /var/moodledata
 chmod 770 /var/moodledata'
 
+# The download has no vendor/ folder; Moodle 5.3 needs its Composer libraries for the router,
+# REST API and OAuth 2 server (and for everything from Moodle 6.0).
+step "Installing Moodle's libraries (Composer)" ct <<'EOF'
+cd /tmp
+curl -fsSL https://getcomposer.org/installer -o composer-setup.php
+if [[ "$(curl -fsSL https://composer.github.io/installer.sig)" != "$(php -r 'echo hash_file("sha384", "composer-setup.php");')" ]]; then
+  echo "The Composer installer's signature does not match."
+  exit 1
+fi
+php composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer
+rm composer-setup.php
+cd /var/www/moodle
+runuser -u www-data -- env HOME=/tmp/composer-home COMPOSER_HOME=/tmp/composer-home \
+  /usr/local/bin/composer install --no-dev --classmap-authoritative --no-interaction --no-progress
+rm -rf /tmp/composer-home
+EOF
+
 step "Setting up Apache and cron" ct <<'EOF'
 cat > /etc/apache2/sites-available/moodle.conf <<'APACHE'
 <VirtualHost *:80>
     ServerAdmin admin@localhost
     DocumentRoot /var/www/moodle/public
+    # Moodle's router: addresses without a file of their own go to r.php
+    DirectoryIndex index.php
+    FallbackResource /r.php
     <Directory /var/www/moodle/public>
         Options FollowSymLinks
         AllowOverride All
@@ -404,11 +424,12 @@ step "Installing Moodle (takes a few minutes)" pct exec "$CTID" -- runuser -u ww
   --adminuser="$ADMIN_USER" --adminpass="$ADMIN_PASS" --adminemail="$ADMIN_EMAIL"
 
 finish() {
-  # Behind a reverse proxy that ends HTTPS, Moodle must trust it for https:// links and secure cookies.
-  if [[ "$MOODLE_WWWROOT" == https://* ]]; then
-    pct exec "$CTID" -- sed -i "s|^require_once(__DIR__ . '/lib/setup.php');|\$CFG->sslproxy = true;\n\n&|" /var/www/moodle/config.php
-    pct exec "$CTID" -- grep -q 'sslproxy = true' /var/www/moodle/config.php || { echo "Could not add sslproxy to config.php"; return 1; }
-  fi
+  # Apache sends router addresses to r.php (see moodle.conf), so tell Moodle the router is set up.
+  # Behind a reverse proxy that ends HTTPS, Moodle must also trust it for https:// links and secure cookies.
+  local extra='\$CFG->routerconfigured = true;'
+  [[ "$MOODLE_WWWROOT" == https://* ]] && extra+='\n\$CFG->sslproxy = true;'
+  pct exec "$CTID" -- sed -i "s|^require_once(__DIR__ . '/lib/setup.php');|$extra\n\n&|" /var/www/moodle/config.php
+  pct exec "$CTID" -- grep -q 'routerconfigured = true' /var/www/moodle/config.php || { echo "Could not update config.php"; return 1; }
   pct exec "$CTID" -- chmod 640 /var/www/moodle/config.php
   # Credentials stay in a root-only file inside the container instead of the terminal scrollback
   pct exec "$CTID" -- bash -c "umask 077 && cat > /root/moodle-credentials.txt" <<CREDS
