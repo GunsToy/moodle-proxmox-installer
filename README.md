@@ -1,6 +1,6 @@
 # moodle-proxmox-installer
 
-Installs **Moodle 5.3 LTS** in a new Proxmox LXC container (Ubuntu 24.04), with menus like the Proxmox VE community scripts.
+Installs the **latest Moodle release** in a new Proxmox LXC container (Ubuntu 24.04), with menus like the Proxmox VE community scripts.
 
 ## Run
 
@@ -17,8 +17,14 @@ A summary screen shows everything before anything is created; Exit at any step c
 
 ## What it installs
 
-- **PHP**: the newest version Moodle 5.3 supports, read from Moodle's release notes when the script runs (8.4 today; falls back to 8.4 offline). Versions newer than Ubuntu's own 8.3 come from the ondrej/php PPA.
-- **MariaDB 11.4** (Moodle 5.3's minimum) from MariaDB's repository, Apache, and the Moodle cron job.
+Everything is looked up when the script runs, before the menus:
+
+- **Moodle**: the newest release tagged on Moodle's GitHub whose download package is out (5.3.0 today).
+- **PHP**: the newest version that release supports, from Moodle's release notes (8.4 for 5.3). Versions newer than Ubuntu's own 8.3 come from the ondrej/php PPA.
+- **MariaDB**: that release's minimum, from its `environment.xml` (11.4 for 5.3), from MariaDB's repository.
+- Without internet access to those sites it uses Moodle 5.3, PHP 8.4 and MariaDB 11.4.
+
+It also installs Apache and the Moodle cron job.
 - The admin and database passwords are random and saved in the container: `pct exec <id> -- cat /root/moodle-credentials.txt`.
 - The install log is on the Proxmox host in `/var/log/moodle-install-<date>.log`.
 

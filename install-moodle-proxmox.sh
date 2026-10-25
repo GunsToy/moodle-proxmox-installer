@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # install-moodle-proxmox.sh
-# Installs Moodle 5.3 LTS into a new Proxmox LXC container (Ubuntu 24.04),
+# Installs the latest Moodle release into a new Proxmox LXC container (Ubuntu 24.04),
 # with menus in the style of the Proxmox VE community scripts.
 #
 # Run as root on a Proxmox VE host with internet access:
@@ -9,15 +9,16 @@
 #
 # "Default settings" asks only for the site details (admin email, optional public address);
 # "Advanced settings" also lets you choose the container ID, size, storage, network and root password.
-# PHP is the newest version Moodle 5.3 supports (read from Moodle's release notes),
-# MariaDB 11.4 comes from MariaDB's own repository.
+# The Moodle version is the newest release on Moodle's GitHub; PHP is the newest version that
+# release supports (from Moodle's release notes) and MariaDB its minimum (from Moodle's environment.xml).
 
 set -euo pipefail
 
 # ======================== DEFAULTS ========================
-MOODLE_BRANCH="503"   # Moodle 5.3 LTS
-MOODLE_VERSION="5.3"
-PHP_FALLBACK="8.4"    # used when Moodle's release notes cannot be read
+# Used when Moodle's GitHub or release notes cannot be read
+MOODLE_FALLBACK="5.3"
+PHP_FALLBACK="8.4"
+MARIADB_FALLBACK="11.4"
 HOSTNAME="moodle"
 CORES=2
 MEMORY=4096
@@ -34,7 +35,7 @@ ADMIN_USER="admin"
 ADMIN_PASS="$(openssl rand -base64 12 | tr -d '/+=' | head -c 12)"
 # ==========================================================
 
-BACKTITLE="Moodle ${MOODLE_VERSION} LTS installer for Proxmox VE"
+BACKTITLE="Moodle installer for Proxmox VE"
 LOG="/var/log/moodle-install-$(date +%Y%m%d-%H%M%S).log"
 GN=$'\e[1;92m' RD=$'\e[01;31m' YW=$'\e[33m' BL=$'\e[36m' CL=$'\e[m'
 
@@ -96,9 +97,32 @@ ${BL}
    __  ___              ____
   /  |/  /__  ___  ___/ / /__
  / /|_/ / _ \/ _ \/ _  / / -_)
-/_/  /_/\___/\___/\_,_/_/\__/   ${MOODLE_VERSION} LTS for Proxmox VE
+/_/  /_/\___/\___/\_,_/_/\__/   for Proxmox VE
 ${CL}
 BANNER
+
+# The newest Moodle release (tags like v5.3.0) whose download package exists yet
+msg_info "Finding the latest Moodle release"
+MOODLE_RELEASE=""
+MOODLE_VERSION=""
+while read -r v; do
+  branch="$(printf '%d%02d' "${v%%.*}" "$(cut -d. -f2 <<<"$v")")"
+  if curl -fsI --max-time 15 "https://packaging.moodle.org/stable$branch/moodle-${v%.*}.tgz" >/dev/null 2>&1; then
+    MOODLE_RELEASE="$v"
+    MOODLE_VERSION="${v%.*}"
+    break
+  fi
+done < <(curl -fsSL --max-time 20 https://api.github.com/repos/moodle/moodle/git/matching-refs/tags/v 2>/dev/null |
+  grep -oE '"refs/tags/v[0-9]+\.[0-9]+\.[0-9]+"' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' |
+  sort -rV | awk -F. '!seen[$1 "." $2]++' | head -n 3 || true)
+if [[ -n "$MOODLE_VERSION" ]]; then
+  msg_ok "Latest Moodle release is $MOODLE_RELEASE"
+else
+  MOODLE_VERSION="$MOODLE_FALLBACK"
+  MOODLE_RELEASE="$MOODLE_FALLBACK"
+  msg_ok "Could not reach Moodle's GitHub, using Moodle $MOODLE_VERSION"
+fi
+MOODLE_BRANCH="$(printf '%d%02d' "${MOODLE_VERSION%%.*}" "${MOODLE_VERSION#*.}")"   # 5.3 -> 503
 
 # The newest PHP that Moodle's release notes list for this version
 # ("- PHP version: minimum PHP 8.3.0. PHP 8.4.x is supported too.").
@@ -110,6 +134,22 @@ if [[ -n "$PHP_V" ]]; then
 else
   PHP_V="$PHP_FALLBACK"
   msg_ok "Could not read Moodle's release notes, using PHP ${PHP_V}"
+fi
+
+# The minimum MariaDB for this version, from <VENDOR name="mariadb" version="11.4.0" /> in its environment.xml
+msg_info "Checking which MariaDB Moodle ${MOODLE_VERSION} needs"
+MARIADB_V=""
+for path in public/admin admin; do
+  MARIADB_V="$(curl -fsSL --max-time 20 "https://raw.githubusercontent.com/moodle/moodle/MOODLE_${MOODLE_BRANCH}_STABLE/$path/environment.xml" 2>/dev/null |
+    awk -v ver="$MOODLE_VERSION" '$0 ~ "<MOODLE version=\"" ver "\"" {f = 1} f && /<\/MOODLE>/ {f = 0} f' |
+    grep -oE 'VENDOR name="mariadb" version="[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+$' || true)"
+  [[ -n "$MARIADB_V" ]] && break
+done
+if [[ -n "$MARIADB_V" ]]; then
+  msg_ok "Moodle ${MOODLE_VERSION} needs MariaDB ${MARIADB_V}"
+else
+  MARIADB_V="$MARIADB_FALLBACK"
+  msg_ok "Could not read Moodle's requirements, using MariaDB ${MARIADB_V}"
 fi
 
 CTID="$(pvesh get /cluster/nextid)"
@@ -126,7 +166,7 @@ ROOT_PASSWORD=""
 
 # ---------------------------------------------------------------- menus
 MODE=$(whiptail --backtitle "$BACKTITLE" --title "SETTINGS" --ok-button "Select" --cancel-button "Exit" \
-  --menu "\nThis creates a new container with Moodle ${MOODLE_VERSION}, PHP ${PHP_V} and MariaDB 11.4.\n\nDefault: ID ${CTID}, ${CORES} cores, ${MEMORY} MB RAM, ${DISK_GB} GB on ${STORAGE}, DHCP on ${BRIDGE}." \
+  --menu "\nThis creates a new container with Moodle ${MOODLE_RELEASE}, PHP ${PHP_V} and MariaDB ${MARIADB_V}.\n\nDefault: ID ${CTID}, ${CORES} cores, ${MEMORY} MB RAM, ${DISK_GB} GB on ${STORAGE}, DHCP on ${BRIDGE}." \
   16 76 2 \
   "1" "Default settings" \
   "2" "Advanced settings" \
@@ -225,7 +265,7 @@ Resources    : $CORES cores, $MEMORY MB RAM, $DISK_GB GB on $STORAGE
 Network      : $NET_SUMMARY on $BRIDGE
 Root login   : $ROOT_SUMMARY
 
-Moodle       : $MOODLE_VERSION LTS, PHP $PHP_V, MariaDB 11.4
+Moodle       : $MOODLE_RELEASE, PHP $PHP_V, MariaDB $MARIADB_V
 Site         : $SITE_FULLNAME
 Address      : ${PUBLIC_URL:-http://<container IP>}
 Admin        : $ADMIN_USER <$ADMIN_EMAIL>" 20 76 || exit_script
@@ -309,8 +349,8 @@ for ini in "/etc/php/$PHP_V/apache2/php.ini" "/etc/php/$PHP_V/cli/php.ini"; do
 done
 EOF
 
-step "Installing MariaDB 11.4" ct <<'EOF'
-curl -fsSL https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="mariadb-11.4"
+step "Installing MariaDB $MARIADB_V" pct exec "$CTID" -- env DEBIAN_FRONTEND=noninteractive MARIADB_V="$MARIADB_V" bash -euo pipefail -s <<'EOF'
+curl -fsSL https://r.mariadb.com/downloads/mariadb_repo_setup | bash -s -- --mariadb-server-version="mariadb-$MARIADB_V"
 apt-get update
 apt-get install -y mariadb-server mariadb-client
 systemctl enable --now mariadb
@@ -384,7 +424,7 @@ CREDS
 step "Finishing the configuration" finish
 
 echo
-echo "${GN}Moodle ${MOODLE_VERSION} is installed.${CL}"
+echo "${GN}Moodle ${MOODLE_RELEASE} is installed.${CL}"
 echo
 echo "  Container   : $CTID ($HOSTNAME), IP $CT_IP"
 echo "  Web address : $MOODLE_WWWROOT"
