@@ -390,6 +390,16 @@ runuser -u www-data -- env HOME=/tmp/composer-home COMPOSER_HOME=/tmp/composer-h
 rm -rf /tmp/composer-home
 EOF
 
+# Our "Add a new user" page (local/adduser in this repository): ID number required, enrol in several courses at once.
+# Added before install.php so Moodle installs it with everything else.
+step "Adding the Add user plugin" ct <<'EOF'
+dest=/var/www/moodle/public
+[[ -d "$dest/local" ]] || dest=/var/www/moodle   # Moodle before 5.1 has no public/ folder
+curl -fsSL https://codeload.github.com/GunsToy/moodle-proxmox-installer/tar.gz/main |
+  tar -xz -C "$dest" --strip-components=1 moodle-proxmox-installer-main/local/adduser
+chown -R www-data:www-data "$dest/local/adduser"
+EOF
+
 step "Setting up Apache and cron" ct <<'EOF'
 cat > /etc/apache2/sites-available/moodle.conf <<'APACHE'
 <VirtualHost *:80>

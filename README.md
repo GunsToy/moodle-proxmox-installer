@@ -28,6 +28,23 @@ It also installs Apache and the Moodle cron job.
 - The admin and database passwords are random and saved in the container: `pct exec <id> -- cat /root/moodle-credentials.txt`.
 - The install log is on the Proxmox host in `/var/log/moodle-install-<date>.log`.
 
+## Adding users
+
+The script also installs a small plugin (`local/adduser` in this repository). Moodle's **Add a new user** (*Site administration > Users > Add a new user*, or the button on *Browse list of users*) opens its page instead of Moodle's own form:
+
+- **ID number is required** and must be unique.
+- **Enrol in courses**: pick any number of courses; the user is enrolled in each with the course's manual enrolment and its default role (usually Student).
+
+Editing existing users, bulk upload and self-registration still use Moodle's own forms, which do not require an ID number.
+
+To add it to a container installed before this, run inside the container:
+
+```bash
+curl -fsSL https://codeload.github.com/GunsToy/moodle-proxmox-installer/tar.gz/main | tar -xz -C /var/www/moodle/public --strip-components=1 moodle-proxmox-installer-main/local/adduser
+chown -R www-data:www-data /var/www/moodle/public/local/adduser
+runuser -u www-data -- php /var/www/moodle/admin/cli/upgrade.php --non-interactive
+```
+
 ## Behind Nginx Proxy Manager
 
 Enter the public address (e.g. `https://training.example.com`) when asked. The script sets it as Moodle's address and adds `$CFG->sslproxy = true;`. In Nginx Proxy Manager, add a proxy host for that domain pointing at `http://<container IP>:80` with an SSL certificate.
