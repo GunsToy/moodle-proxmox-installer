@@ -68,7 +68,6 @@ ask() {
 
 newer() { awk -v a="$1" -v b="$2" 'BEGIN { exit !(a > b) }'; }   # decimal Moodle versions like 2026100500.02
 version_of_branch() { printf '%d.%d' "${1:0:${#1}-2}" "$((10#${1: -2}))"; }   # 503 -> 5.3
-branch_of_version() { printf '%d%02d' "${1%%.*}" "${1#*.}"; }                  # 5.3 -> 503
 
 moodle_php() { runuser -u www-data -- php "$@"; }
 
@@ -90,23 +89,10 @@ moodle_info() {
     }'
 }
 
-# The newest PHP in Moodle's release notes for a version ("minimum PHP 8.3.0. PHP 8.4.x is supported too.")
-php_range() {
-  curl -fsSL --max-time 15 "https://raw.githubusercontent.com/moodle/devdocs/main/general/releases/$1.md" 2>/dev/null |
-    awk '/^- PHP version:/ && !done {print; done = 1}' | grep -oE 'PHP 8\.[0-9]+' | awk '{print $2}' | sort -V | sed -n '1p;$p' | paste -sd' ' || true
-}
-
-# The minimum MariaDB in Moodle's environment.xml for a version
-mariadb_min() {
-  local branch path
-  branch="$(branch_of_version "$1")"
-  for path in public/admin admin; do
-    curl -fsSL --max-time 20 "https://raw.githubusercontent.com/moodle/moodle/MOODLE_${branch}_STABLE/$path/environment.xml" 2>/dev/null |
-      awk -v ver="$1" '$0 ~ "<MOODLE version=\"" ver "\"" {f = 1} f && /<\/MOODLE>/ {f = 0} f' |
-      grep -oE 'VENDOR name="mariadb" version="[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+$' && return 0
-  done
-  return 0
-}
+# branch_of_version, moodle_newest_release, php_range and mariadb_min, shared with install-moodle-proxmox.sh
+lib="$(curl -fsSL --max-time 20 https://raw.githubusercontent.com/GunsToy/moodle-proxmox-installer/main/moodle-versions.sh)" ||
+  { echo "Could not download moodle-versions.sh from GitHub." >&2; exit 1; }
+eval "$lib"
 
 # ---------------------------------------------------------------- checks
 if [[ $EUID -ne 0 ]]; then
@@ -153,19 +139,8 @@ fi
 
 # Newer major version: the newest release tag whose download package exists
 msg_info "Checking for a new major Moodle version"
-MAJOR_SERIES=""
-while read -r v; do
-  series="${v%.*}"
-  b="$(branch_of_version "$series")"
-  ((10#$b > 10#$CORE_BRANCH)) || break
-  if curl -fsI --max-time 15 "https://packaging.moodle.org/stable$b/moodle-$series.tgz" >/dev/null 2>&1; then
-    MAJOR_SERIES="$series"
-    MAJOR_RELEASE="$v"
-    break
-  fi
-done < <(curl -fsSL --max-time 20 https://api.github.com/repos/moodle/moodle/git/matching-refs/tags/v 2>/dev/null |
-  grep -oE '"refs/tags/v[0-9]+\.[0-9]+\.[0-9]+"' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' |
-  sort -rV | awk -F. '!seen[$1 "." $2]++' | head -n 3 || true)
+MAJOR_RELEASE="$(moodle_newest_release "$CORE_BRANCH")"
+MAJOR_SERIES="${MAJOR_RELEASE%.*}"
 if [[ -n "$MAJOR_SERIES" ]]; then
   msg_ok "Moodle $MAJOR_RELEASE is available (a major upgrade)"
 else
@@ -175,7 +150,7 @@ fi
 # PHP: newest version the installed (or, for a major upgrade, the new) Moodle supports
 PHP_NOW="$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')"
 msg_info "Checking PHP $PHP_NOW against Moodle $CORE_SERIES"
-read -r _ PHP_MAX < <(php_range "$CORE_SERIES"; echo) || true
+PHP_MAX="$(php_range "$CORE_SERIES" | awk '{print $2}')"
 PHP_UPGRADE=""
 if [[ -n "${PHP_MAX:-}" ]] && [[ "$(printf '%s\n' "$PHP_NOW" "$PHP_MAX" | sort -V | tail -1)" != "$PHP_NOW" ]]; then
   PHP_UPGRADE="$PHP_MAX"
@@ -400,7 +375,7 @@ fi
 PHP_NOW="$(php -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;')"   # steps run in subshells
 if ((DO_MAJOR)); then
   # The new version's requirements first: its newest PHP, and MariaDB at least its minimum
-  read -r _ NEW_PHP_MAX < <(php_range "$MAJOR_SERIES"; echo) || true
+  NEW_PHP_MAX="$(php_range "$MAJOR_SERIES" | awk '{print $2}')"
   NEW_MARIADB_MIN="$(mariadb_min "$MAJOR_SERIES")"
   MARIADB_NOW="$(mariadb --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+-MariaDB' | grep -oE '^[0-9]+\.[0-9]+')"
   if [[ -n "${NEW_PHP_MAX:-}" && "$NEW_PHP_MAX" != "$PHP_NOW" ]] && [[ "$(printf '%s\n' "$PHP_NOW" "$NEW_PHP_MAX" | sort -V | tail -1)" == "$NEW_PHP_MAX" ]]; then

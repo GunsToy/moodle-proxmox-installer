@@ -101,34 +101,25 @@ ${BL}
 ${CL}
 BANNER
 
-# The newest Moodle release (tags like v5.3.0) whose download package exists yet
+# Moodle, PHP and MariaDB version lookups, shared with moodle-update.sh
+lib="$(curl -fsSL --max-time 20 https://raw.githubusercontent.com/GunsToy/moodle-proxmox-installer/main/moodle-versions.sh)" ||
+  { echo "Could not download moodle-versions.sh from GitHub." >&2; exit 1; }
+eval "$lib"
+
 msg_info "Finding the latest Moodle release"
-MOODLE_RELEASE=""
-MOODLE_VERSION=""
-while read -r v; do
-  branch="$(printf '%d%02d' "${v%%.*}" "$(cut -d. -f2 <<<"$v")")"
-  if curl -fsI --max-time 15 "https://packaging.moodle.org/stable$branch/moodle-${v%.*}.tgz" >/dev/null 2>&1; then
-    MOODLE_RELEASE="$v"
-    MOODLE_VERSION="${v%.*}"
-    break
-  fi
-done < <(curl -fsSL --max-time 20 https://api.github.com/repos/moodle/moodle/git/matching-refs/tags/v 2>/dev/null |
-  grep -oE '"refs/tags/v[0-9]+\.[0-9]+\.[0-9]+"' | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' |
-  sort -rV | awk -F. '!seen[$1 "." $2]++' | head -n 3 || true)
-if [[ -n "$MOODLE_VERSION" ]]; then
+MOODLE_RELEASE="$(moodle_newest_release)"
+if [[ -n "$MOODLE_RELEASE" ]]; then
+  MOODLE_VERSION="${MOODLE_RELEASE%.*}"
   msg_ok "Latest Moodle release is $MOODLE_RELEASE"
 else
   MOODLE_VERSION="$MOODLE_FALLBACK"
   MOODLE_RELEASE="$MOODLE_FALLBACK"
   msg_ok "Could not reach Moodle's GitHub, using Moodle $MOODLE_VERSION"
 fi
-MOODLE_BRANCH="$(printf '%d%02d' "${MOODLE_VERSION%%.*}" "${MOODLE_VERSION#*.}")"   # 5.3 -> 503
+MOODLE_BRANCH="$(branch_of_version "$MOODLE_VERSION")"   # 5.3 -> 503
 
-# The newest PHP that Moodle's release notes list for this version
-# ("- PHP version: minimum PHP 8.3.0. PHP 8.4.x is supported too.").
 msg_info "Checking which PHP versions Moodle ${MOODLE_VERSION} supports"
-PHP_V="$(curl -fsSL --max-time 15 "https://raw.githubusercontent.com/moodle/devdocs/main/general/releases/${MOODLE_VERSION}.md" 2>/dev/null |
-  awk '/^- PHP version:/ && !done {print; done = 1}' | grep -oE 'PHP 8\.[0-9]+' | awk '{print $2}' | sort -V | tail -1 || true)"
+PHP_V="$(php_range "$MOODLE_VERSION" | awk '{print $2}')"
 if [[ -n "$PHP_V" ]]; then
   msg_ok "Moodle ${MOODLE_VERSION} supports up to PHP ${PHP_V}"
 else
@@ -136,15 +127,8 @@ else
   msg_ok "Could not read Moodle's release notes, using PHP ${PHP_V}"
 fi
 
-# The minimum MariaDB for this version, from <VENDOR name="mariadb" version="11.4.0" /> in its environment.xml
 msg_info "Checking which MariaDB Moodle ${MOODLE_VERSION} needs"
-MARIADB_V=""
-for path in public/admin admin; do
-  MARIADB_V="$(curl -fsSL --max-time 20 "https://raw.githubusercontent.com/moodle/moodle/MOODLE_${MOODLE_BRANCH}_STABLE/$path/environment.xml" 2>/dev/null |
-    awk -v ver="$MOODLE_VERSION" '$0 ~ "<MOODLE version=\"" ver "\"" {f = 1} f && /<\/MOODLE>/ {f = 0} f' |
-    grep -oE 'VENDOR name="mariadb" version="[0-9]+\.[0-9]+' | grep -oE '[0-9]+\.[0-9]+$' || true)"
-  [[ -n "$MARIADB_V" ]] && break
-done
+MARIADB_V="$(mariadb_min "$MOODLE_VERSION")"
 if [[ -n "$MARIADB_V" ]]; then
   msg_ok "Moodle ${MOODLE_VERSION} needs MariaDB ${MARIADB_V}"
 else
