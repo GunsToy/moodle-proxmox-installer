@@ -1,9 +1,9 @@
 {
   "install-moodle-proxmox.sh": {
-    "mtime": 1793076278.6075208,
-    "seen": 1793340907.4095712,
-    "ast_hash": "a57cd1f57226246f5f76ee2fcb691287",
-    "semantic_hash": "a57cd1f57226246f5f76ee2fcb691287"
+    "mtime": 1793695958.670133,
+    "seen": 1793708308.786616,
+    "ast_hash": "87fe69642cc5477032434e0e3dc31d24",
+    "semantic_hash": "87fe69642cc5477032434e0e3dc31d24"
   },
   "moodle-update.sh": {
     "mtime": 1793076278.6075208,
@@ -12,9 +12,51 @@
     "semantic_hash": "bb4bb6385fde9a96a4bca6cdfc2053fd"
   },
   "README.md": {
-    "mtime": 1793076278.6004417,
-    "seen": 1793340907.4095843,
-    "ast_hash": "d3a9755066689751a147771e9f5566ae",
-    "semantic_hash": "d3a9755066689751a147771e9f5566ae"
+    "mtime": 1793695959.067159,
+    "seen": 1793708308.7866387,
+    "ast_hash": "f71a1fd06531e85a7e3cbb45abafdf25",
+    "semantic_hash": "f71a1fd06531e85a7e3cbb45abafdf25"
+  },
+  "local/adduser/classes/form/adduser_form.php": {
+    "mtime": 1793695948.7338462,
+    "seen": 1793708308.786623,
+    "ast_hash": "8c21dec81a49437c6ad9a7c8e7957061",
+    "semantic_hash": "8c21dec81a49437c6ad9a7c8e7957061"
+  },
+  "local/adduser/classes/hook_callbacks.php": {
+    "mtime": 1793695947.9416301,
+    "seen": 1793708308.7866259,
+    "ast_hash": "36f707ed3a1fef0e3162f59a9b0633f8",
+    "semantic_hash": "36f707ed3a1fef0e3162f59a9b0633f8"
+  },
+  "local/adduser/classes/privacy/provider.php": {
+    "mtime": 1793695948.33637,
+    "seen": 1793708308.7866273,
+    "ast_hash": "0edb7ad40ea29fd7fea2acf5192d9a1c",
+    "semantic_hash": "0edb7ad40ea29fd7fea2acf5192d9a1c"
+  },
+  "local/adduser/db/hooks.php": {
+    "mtime": 1793695947.4215336,
+    "seen": 1793708308.7866292,
+    "ast_hash": "216b35705b80ca4f7e6549ecc7ce17cd",
+    "semantic_hash": "216b35705b80ca4f7e6549ecc7ce17cd"
+  },
+  "local/adduser/index.php": {
+    "mtime": 1793695949.1428745,
+    "seen": 1793708308.7866304,
+    "ast_hash": "d1701a0bde3d25c44646957bc84184d1",
+    "semantic_hash": "d1701a0bde3d25c44646957bc84184d1"
+  },
+  "local/adduser/lang/en/local_adduser.php": {
+    "mtime": 1793695947.0161126,
+    "seen": 1793708308.7866316,
+    "ast_hash": "62a6ed7a1467942a8f1567c09755dc61",
+    "semantic_hash": "62a6ed7a1467942a8f1567c09755dc61"
+  },
+  "local/adduser/version.php": {
+    "mtime": 1793695946.5130086,
+    "seen": 1793708308.7866328,
+    "ast_hash": "97f7dee4defa4c5174e94f9cdd8956c3",
+    "semantic_hash": "97f7dee4defa4c5174e94f9cdd8956c3"
   }
 }
