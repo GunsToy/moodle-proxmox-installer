@@ -45,6 +45,10 @@ chown -R www-data:www-data /var/www/moodle/public/local/adduser
 runuser -u www-data -- php /var/www/moodle/admin/cli/upgrade.php --non-interactive
 ```
 
+## Copying test to live
+
+To turn a tested container into a separate live one (clone, its own IP and address, backups), follow [docs/clone-to-live.md](docs/clone-to-live.md).
+
 ## Behind Nginx Proxy Manager
 
 Enter the public address (e.g. `https://training.example.com`) when asked. The script sets it as Moodle's address and adds `$CFG->sslproxy = true;`. In Nginx Proxy Manager, add a proxy host for that domain pointing at `http://<container IP>:80` with an SSL certificate.
