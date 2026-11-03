@@ -37,20 +37,38 @@ if ($data = $form->get_data()) {
 
     $manual = enrol_get_plugin('manual');
     $courseids = $data->courses ?? [];
+    $courselines = [];
     foreach ($courseids as $courseid) {
+        $course = get_course($courseid);
         $instance = $DB->get_record('enrol',
             ['courseid' => $courseid, 'enrol' => 'manual', 'status' => ENROL_INSTANCE_ENABLED], '*', IGNORE_MULTIPLE);
         if (!$instance) {
-            $instanceid = $manual->add_default_instance(get_course($courseid));
+            $instanceid = $manual->add_default_instance($course);
             $instance = $DB->get_record('enrol', ['id' => $instanceid], '*', MUST_EXIST);
         }
         $manual->enrol_user($instance, $user->id, $instance->roleid, time(), $data->timeend);
+        $courselines[] = format_string($course->fullname, true, ['context' => context_course::instance($courseid)]) .
+            ': ' . (new moodle_url('/course/view.php', ['id' => $courseid]))->out(false);
     }
     $transaction->allow_commit();
 
-    redirect(new moodle_url('/user/profile.php', ['id' => $user->id]),
-        get_string('usercreated', 'local_adduser', ['name' => fullname($user), 'count' => count($courseids)]),
-        null, \core\output\notification::NOTIFY_SUCCESS);
+    // Sent after commit, so a rolled-back user never gets login details.
+    $a = (object)[
+        'firstname' => $data->firstname,
+        'sitename' => format_string($SITE->fullname),
+        'username' => $data->username,
+        'password' => $data->newpassword,
+        'loginurl' => (new moodle_url('/login/index.php'))->out(false),
+        'timeend' => userdate($data->timeend, get_string('strftimedate', 'langconfig')),
+        'courses' => $courselines ? implode("\n", $courselines) : get_string('none'),
+    ];
+    $sent = email_to_user(core_user::get_user($user->id), core_user::get_noreply_user(),
+        get_string('welcomesubject', 'local_adduser', $a), get_string('welcomeemail', 'local_adduser', $a));
+
+    $message = get_string('usercreated', 'local_adduser', ['name' => fullname($user), 'count' => count($courseids)]) . ' ' .
+        get_string($sent ? 'welcomesent' : 'welcomefailed', 'local_adduser', $data->email);
+    redirect(new moodle_url('/user/profile.php', ['id' => $user->id]), $message, null,
+        $sent ? \core\output\notification::NOTIFY_SUCCESS : \core\output\notification::NOTIFY_WARNING);
 }
 
 echo $OUTPUT->header();
