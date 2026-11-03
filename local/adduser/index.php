@@ -44,7 +44,7 @@ if ($data = $form->get_data()) {
             $instanceid = $manual->add_default_instance(get_course($courseid));
             $instance = $DB->get_record('enrol', ['id' => $instanceid], '*', MUST_EXIST);
         }
-        $manual->enrol_user($instance, $user->id, $instance->roleid);
+        $manual->enrol_user($instance, $user->id, $instance->roleid, time(), $data->timeend);
     }
     $transaction->allow_commit();
 

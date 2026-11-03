@@ -32,6 +32,10 @@ class adduser_form extends \moodleform {
         ]);
         $mform->addHelpButton('courses', 'courses', 'local_adduser');
 
+        $mform->addElement('date_selector', 'timeend', get_string('timeend', 'local_adduser'));
+        $mform->setDefault('timeend', strtotime('+3 months'));
+        $mform->addHelpButton('timeend', 'timeend', 'local_adduser');
+
         $this->add_action_buttons(true, get_string('createuser'));
     }
 
@@ -62,6 +66,10 @@ class adduser_form extends \moodleform {
             $errors['idnumber'] = get_string('required');
         } else if ($DB->record_exists('user', ['idnumber' => $idnumber])) {
             $errors['idnumber'] = get_string('idnumbertaken', 'local_adduser');
+        }
+
+        if ($data['timeend'] <= time()) {
+            $errors['timeend'] = get_string('timeendpast', 'local_adduser');
         }
 
         // The course picker only lists allowed courses, but the submitted ids come from the browser.

@@ -34,6 +34,7 @@ The script also installs a small plugin (`local/adduser` in this repository). Mo
 
 - **ID number is required** and must be unique.
 - **Enrol in courses**: pick any number of courses; the user is enrolled in each with the course's manual enrolment and its default role (usually Student).
+- **Enrolment ends**: defaults to 3 months from today; the enrolments in the chosen courses end on that date.
 
 Editing existing users, bulk upload and self-registration still use Moodle's own forms, which do not require an ID number.
 
