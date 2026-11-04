@@ -34,8 +34,8 @@ The script also installs a small plugin (`local/adduser` in this repository). Mo
 
 - **ID number is required** and must be unique.
 - **Enrol in courses**: pick any number of courses; the user is enrolled in each with the course's manual enrolment and its default role (usually Student).
-- **Enrolment ends**: defaults to 3 months from today; the enrolments in the chosen courses end on that date.
-- **Welcome email**: the new user is emailed their username, password, sign-in link and course links. Edit the text in *Site administration > Language > Language customisation* (`local_adduser`, string `welcomeemail`).
+- **Enrolment ends**: off by default, so each course uses its own default enrolment duration (*course > Participants > Enrolment methods > Manual enrolments*; no duration means no end date). Tick it to end all the chosen courses on one date.
+- **Welcome email**: the new user is emailed their username, password, sign-in link and each course's link and end date. Edit the text in *Site administration > Language > Language customisation* (`local_adduser`, string `welcomeemail`).
 
 Editing existing users, bulk upload and self-registration still use Moodle's own forms, which do not require an ID number.
 

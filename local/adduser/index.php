@@ -46,9 +46,15 @@ if ($data = $form->get_data()) {
             $instanceid = $manual->add_default_instance($course);
             $instance = $DB->get_record('enrol', ['id' => $instanceid], '*', MUST_EXIST);
         }
-        $manual->enrol_user($instance, $user->id, $instance->roleid, time(), $data->timeend);
-        $courselines[] = format_string($course->fullname, true, ['context' => context_course::instance($courseid)]) .
-            ': ' . (new moodle_url('/course/view.php', ['id' => $courseid]))->out(false);
+        $timestart = time();
+        // A picked date wins; otherwise the course's default duration, and 0 (no end) if it has none.
+        $timeend = $data->timeend ?: ($instance->enrolperiod ? $timestart + $instance->enrolperiod : 0);
+        $manual->enrol_user($instance, $user->id, $instance->roleid, $timestart, $timeend);
+        $courselines[] = get_string('courseline', 'local_adduser', (object)[
+            'name' => format_string($course->fullname, true, ['context' => context_course::instance($courseid)]),
+            'until' => $timeend ? userdate($timeend, get_string('strftimedate', 'langconfig')) : get_string('noend', 'local_adduser'),
+            'url' => (new moodle_url('/course/view.php', ['id' => $courseid]))->out(false),
+        ]);
     }
     $transaction->allow_commit();
 
@@ -59,7 +65,6 @@ if ($data = $form->get_data()) {
         'username' => $data->username,
         'password' => $data->newpassword,
         'loginurl' => (new moodle_url('/login/index.php'))->out(false),
-        'timeend' => userdate($data->timeend, get_string('strftimedate', 'langconfig')),
         'courses' => $courselines ? implode("\n", $courselines) : get_string('none'),
     ];
     $sent = email_to_user(core_user::get_user($user->id), core_user::get_noreply_user(),

@@ -1,13 +1,15 @@
 <?php
 defined('MOODLE_INTERNAL') || die();
 
+$string['courseline'] = '{$a->name} (access until {$a->until}): {$a->url}';
 $string['courses'] = 'Enrol in courses';
 $string['courses_help'] = 'The user is enrolled in each course with the manual enrolment method and its default role (usually Student).';
 $string['idnumbertaken'] = 'Another user already has this ID number.';
+$string['noend'] = 'no end date';
 $string['pluginname'] = 'Add a new user';
 $string['privacy:metadata'] = 'The Add user plugin stores no personal data; users and enrolments are saved by Moodle itself.';
 $string['timeend'] = 'Enrolment ends';
-$string['timeend_help'] = 'The user can access the chosen courses until this date. It defaults to 3 months from today.';
+$string['timeend_help'] = 'Leave this off to use each course\'s own default enrolment duration (set under the course\'s Enrolment methods > Manual enrolments). Tick it to end the enrolments in all chosen courses on one date instead.';
 $string['timeendpast'] = 'The enrolment end date must be in the future.';
 $string['usercreated'] = 'User {$a->name} created and enrolled in {$a->count} course(s).';
 $string['welcomeemail'] = 'Hi {$a->firstname},
@@ -18,7 +20,7 @@ Username: {$a->username}
 Password: {$a->password}
 Sign in: {$a->loginurl}
 
-Your courses (access until {$a->timeend}):
+Your courses:
 {$a->courses}
 
 Regards,

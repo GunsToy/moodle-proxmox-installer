@@ -32,8 +32,8 @@ class adduser_form extends \moodleform {
         ]);
         $mform->addHelpButton('courses', 'courses', 'local_adduser');
 
-        $mform->addElement('date_selector', 'timeend', get_string('timeend', 'local_adduser'));
-        $mform->setDefault('timeend', strtotime('+3 months'));
+        // Unticked (0) means each course's own default enrolment duration.
+        $mform->addElement('date_selector', 'timeend', get_string('timeend', 'local_adduser'), ['optional' => true]);
         $mform->addHelpButton('timeend', 'timeend', 'local_adduser');
 
         $this->add_action_buttons(true, get_string('createuser'));
@@ -68,7 +68,7 @@ class adduser_form extends \moodleform {
             $errors['idnumber'] = get_string('idnumbertaken', 'local_adduser');
         }
 
-        if ($data['timeend'] <= time()) {
+        if ($data['timeend'] && $data['timeend'] <= time()) {
             $errors['timeend'] = get_string('timeendpast', 'local_adduser');
         }
 
