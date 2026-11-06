@@ -1,100 +1,98 @@
-# Graph Report - moodle-proxmox-installer  (2026-11-03)
+# Graph Report - moodle-proxmox-installer  (2026-11-06)
 
 ## Corpus Check
-- 9 files · ~6,376 words
+- 10 files · ~8,068 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 87 nodes · 119 edges · 16 communities (7 shown, 9 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.8)
-- Token cost: 0 input · 0 output
+- 100 nodes · 141 edges · 13 communities (6 shown, 7 thin omitted)
+- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.81)
+- Token cost: 65,354 input · 0 output
 
 ## Community Hubs (Navigation)
-- Container Installer Flow
+- Container Installer Flow (0)
 - Update Command Steps
-- Moodle Stack and Add-user Plugin
-- Update Script Helpers
-- Moodle Upgrade and Rollback
-- Installer Menu Prompts
+- Container Installer Flow (2)
+- Moodle Stack and Add-user Plugin (3)
+- Moodle Stack and Add-user Plugin (4)
+- moodle-versions.sh
 - Add-user Form
 - Add-user Redirect Hook
 - Add-user Privacy Provider
-- Installer Output Helpers
-- Backups and Rollback
-- Reverse Proxy Setup
 
 ## God Nodes (most connected - your core abstractions)
-1. `moodle-update.sh script` - 12 edges
+1. `moodle-update.sh script` - 10 edges
 2. `install-moodle-proxmox.sh script` - 9 edges
-3. `upgrade_moodle()` - 6 edges
-4. `Runtime Version Lookup` - 6 edges
-5. `step()` - 5 edges
-6. `moodle_php()` - 5 edges
+3. `Copying a Test Moodle Container into a Live One` - 9 edges
+4. `upgrade_moodle()` - 6 edges
+5. `Runtime Version Lookup` - 6 edges
+6. `step()` - 5 edges
 7. `step()` - 5 edges
-8. `exit_script()` - 4 edges
-9. `adduser_form` - 4 edges
-10. `local/adduser plugin` - 4 edges
+8. `moodle_php()` - 5 edges
+9. `local/adduser Plugin` - 5 edges
+10. `exit_script()` - 4 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `moodle-update.sh script` --calls--> `moodle_info()`  [EXTRACTED]
-  moodle-update.sh → moodle-update.sh  _Bridges community 3 → community 4_
-- `moodle_checks()` --calls--> `moodle_php()`  [EXTRACTED]
-  moodle-update.sh → moodle-update.sh  _Bridges community 1 → community 4_
-- `install-moodle-proxmox.sh script` --calls--> `msg_info()`  [EXTRACTED]
-  install-moodle-proxmox.sh → install-moodle-proxmox.sh  _Bridges community 5 → community 9_
+- `Separate MariaDB Encryption Key Folder` --conceptually_related_to--> `MariaDB 11.4`  [INFERRED]
+  docs/clone-to-live.md → README.md
+- `moodle-proxmox-installer` --references--> `Copying a Test Moodle Container into a Live One`  [EXTRACTED]
+  README.md → docs/clone-to-live.md
+- `mdl_enrol.enrolperiod` --references--> `MariaDB 11.4`  [INFERRED]
+  docs/course-durations.md → README.md
+- `Live Site Verification Checks` --references--> `Moodle Cron Job`  [INFERRED]
+  docs/clone-to-live.md → README.md
+- `Proxmox Backup Job` --conceptually_related_to--> `/var/moodledata`  [INFERRED]
+  docs/clone-to-live.md → README.md
 
 ## Import Cycles
 - None detected.
 
 ## Hyperedges (group relationships)
-- **Installed Moodle LAMP stack** — readme_moodle, readme_php, readme_mariadb, readme_apache, readme_moodle_cron [EXTRACTED 1.00]
-- **Safe Moodle upgrade flow** — readme_maintenance_mode, readme_backup_var_backups_moodle, readme_upgrade_rollback, readme_major_version_upgrade [EXTRACTED 1.00]
+- **Test-to-live clone flow** — docs_clone_to_live_pct_clone_full, docs_clone_to_live_mariadb_encryption_key_folder, docs_clone_to_live_network_static_ip, docs_clone_to_live_wwwroot, docs_clone_to_live_divertallemailsto, docs_clone_to_live_proxmox_backup_job, docs_clone_to_live_verification_checks [EXTRACTED 1.00]
+- **Enrolment end-date determination** — readme_local_adduser_plugin, readme_enrolment_ends, docs_course_durations_default_enrolment_duration, docs_course_durations_mdl_enrol_enrolperiod, readme_manual_enrolment [INFERRED 0.85]
+- **Moodle stack version resolution** — readme_runtime_version_lookup, readme_moodle, readme_php, readme_mariadb, moodle_update [INFERRED 0.85]
 
-## Communities (16 total, 9 thin omitted)
+## Communities (13 total, 7 thin omitted)
 
-### Community 0 - "Container Installer Flow"
-Cohesion: 0.12
-Nodes (9): Advanced Settings, Apache, Default Settings, Install log /var/log/moodle-install-<date>.log, /root/moodle-credentials.txt, Moodle cron job, moodle-proxmox-installer, Proxmox LXC Container (Ubuntu 24.04) (+1 more)
+### Community 0 - "Container Installer Flow (0)"
+Cohesion: 0.15
+Nodes (16): exit_script(), input(), msg_error(), msg_info(), msg_ok(), oops(), password(), install-moodle-proxmox.sh script (+8 more)
 
 ### Community 1 - "Update Command Steps"
 Cohesion: 0.18
-Nodes (7): moodle_checks(), PATH, switch_php(), Add-on plugin update listing, Composer, Maintenance mode during upgrade, update command
+Nodes (18): ask(), backup(), moodle_checks(), moodle_info(), moodle_php(), msg_error(), msg_info(), msg_ok() (+10 more)
 
-### Community 2 - "Moodle Stack and Add-user Plugin"
+### Community 2 - "Container Installer Flow (2)"
+Cohesion: 0.18
+Nodes (12): $CFG->divertallemailsto on Test Site, Separate MariaDB Encryption Key Folder, mp0 Encryption Key Bind Mount, Live Container Network / Static IP, pct clone --full, Copying a Test Moodle Container into a Live One, Proxmox Backup Job, Moodle Site Re-registration (+4 more)
+
+### Community 3 - "Moodle Stack and Add-user Plugin (3)"
 Cohesion: 0.20
-Nodes (8): Moodle environment.xml, local/adduser plugin, MariaDB, Moodle, Enrol in multiple courses (manual enrolment, default role), ondrej/php PPA, PHP, Required unique ID number
+Nodes (10): purge_caches.php, $CFG->wwwroot Live Address, mdl_enrol.enrolperiod, Moodle environment.xml, MariaDB 11.4, Moodle (5.3.0), Nginx Proxy Manager, ondrej/php PPA (+2 more)
 
-### Community 3 - "Update Script Helpers"
-Cohesion: 0.33
-Nodes (9): ask(), branch_of_version(), mariadb_min(), msg_error(), msg_info(), msg_ok(), msg_warn(), moodle-update.sh script (+1 more)
+### Community 4 - "Moodle Stack and Add-user Plugin (4)"
+Cohesion: 0.25
+Nodes (8): Class of Business Courses (COB*, 90 days), Course Enrolment Durations (Live Site), CPD and Other Courses (30 days), Default Enrolment Duration, Enrolment Ends Option, local/adduser Plugin, Manual Enrolment, Welcome Email (local_adduser welcomeemail string)
 
-### Community 4 - "Moodle Upgrade and Rollback"
-Cohesion: 0.33
-Nodes (7): backup(), moodle_info(), moodle_php(), newer(), rollback(), upgrade_moodle(), version_of_branch()
-
-### Community 5 - "Installer Menu Prompts"
+### Community 5 - "moodle-versions.sh"
 Cohesion: 0.47
-Nodes (6): exit_script(), input(), oops(), password(), install-moodle-proxmox.sh script, valid_ipv4()
-
-### Community 9 - "Installer Output Helpers"
-Cohesion: 0.50
-Nodes (4): msg_error(), msg_info(), msg_ok(), step()
+Nodes (4): branch_of_version(), mariadb_min(), moodle_newest_release(), moodle-versions.sh script
 
 ## Knowledge Gaps
-- **21 isolated node(s):** `PATH`, `moodle-proxmox-installer`, `Proxmox LXC Container (Ubuntu 24.04)`, `Proxmox VE Community Scripts style menus`, `Default Settings` (+16 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 44 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **15 isolated node(s):** `PATH`, `Proxmox LXC Container (Ubuntu 24.04)`, `Default Settings (2 cores, 4 GB RAM, 20 GB disk, DHCP vmbr0)`, `Advanced Settings`, `ondrej/php PPA` (+10 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 39 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Runtime Version Lookup` connect `Moodle Stack and Add-user Plugin` to `Container Installer Flow`?**
-  _High betweenness centrality (0.365) - this node is a cross-community bridge._
-- **What connects `PATH`, `moodle-proxmox-installer`, `Proxmox LXC Container (Ubuntu 24.04)` to the rest of the system?**
-  _21 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Container Installer Flow` be split into smaller, more focused modules?**
-  _Cohesion score 0.125 - nodes in this community are weakly interconnected._
-- **Why does `Major Moodle version upgrade (separate confirmation)` connect `Moodle Stack and Add-user Plugin` to `Update Command Steps`?**
-  _High betweenness centrality (0.324) - this node is a cross-community bridge._
-- **Why does `local/adduser plugin` connect `Moodle Stack and Add-user Plugin` to `Container Installer Flow`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `Runtime Version Lookup` connect `Moodle Stack and Add-user Plugin (3)` to `Container Installer Flow (0)`, `Update Command Steps`?**
+  _High betweenness centrality (0.211) - this node is a cross-community bridge._
+- **What connects `PATH`, `Proxmox LXC Container (Ubuntu 24.04)`, `Default Settings (2 cores, 4 GB RAM, 20 GB disk, DHCP vmbr0)` to the rest of the system?**
+  _15 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Container Installer Flow (0)` be split into smaller, more focused modules?**
+  _Cohesion score 0.1471861471861472 - nodes in this community are weakly interconnected._
+- **Why does `Copying a Test Moodle Container into a Live One` connect `Container Installer Flow (2)` to `Container Installer Flow (0)`, `Moodle Stack and Add-user Plugin (3)`?**
+  _High betweenness centrality (0.101) - this node is a cross-community bridge._
+- **Why does `MariaDB 11.4` connect `Moodle Stack and Add-user Plugin (3)` to `Update Command Steps`, `Container Installer Flow (2)`?**
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._

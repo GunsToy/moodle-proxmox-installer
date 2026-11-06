@@ -1,27 +1,27 @@
 {
   "install-moodle-proxmox.sh": {
-    "mtime": 1793695958.670133,
-    "seen": 1793708308.786616,
-    "ast_hash": "87fe69642cc5477032434e0e3dc31d24",
-    "semantic_hash": "87fe69642cc5477032434e0e3dc31d24"
+    "mtime": 1793709182.3269117,
+    "seen": 1793963787.7617877,
+    "ast_hash": "42425d3330ed4ba1b7cbea9e5d234552",
+    "semantic_hash": "42425d3330ed4ba1b7cbea9e5d234552"
   },
   "moodle-update.sh": {
-    "mtime": 1793076278.6075208,
-    "seen": 1793340907.409581,
-    "ast_hash": "bb4bb6385fde9a96a4bca6cdfc2053fd",
-    "semantic_hash": "bb4bb6385fde9a96a4bca6cdfc2053fd"
+    "mtime": 1793709252.4250925,
+    "seen": 1793963787.7618213,
+    "ast_hash": "c0ff5b37b53b0c1b2f4f06e8d422be74",
+    "semantic_hash": "c0ff5b37b53b0c1b2f4f06e8d422be74"
   },
   "README.md": {
-    "mtime": 1793695959.067159,
-    "seen": 1793708308.7866387,
-    "ast_hash": "f71a1fd06531e85a7e3cbb45abafdf25",
-    "semantic_hash": "f71a1fd06531e85a7e3cbb45abafdf25"
+    "mtime": 1793816452.190655,
+    "seen": 1793963787.7618272,
+    "ast_hash": "4e831e7105c7d52bbf3415c052c145ca",
+    "semantic_hash": "4e831e7105c7d52bbf3415c052c145ca"
   },
   "local/adduser/classes/form/adduser_form.php": {
-    "mtime": 1793695948.7338462,
-    "seen": 1793708308.786623,
-    "ast_hash": "8c21dec81a49437c6ad9a7c8e7957061",
-    "semantic_hash": "8c21dec81a49437c6ad9a7c8e7957061"
+    "mtime": 1793816449.61921,
+    "seen": 1793963787.7617984,
+    "ast_hash": "5aa518bcff97e1df0163949ae3387aa6",
+    "semantic_hash": "5aa518bcff97e1df0163949ae3387aa6"
   },
   "local/adduser/classes/hook_callbacks.php": {
     "mtime": 1793695947.9416301,
@@ -42,21 +42,39 @@
     "semantic_hash": "216b35705b80ca4f7e6549ecc7ce17cd"
   },
   "local/adduser/index.php": {
-    "mtime": 1793695949.1428745,
-    "seen": 1793708308.7866304,
-    "ast_hash": "d1701a0bde3d25c44646957bc84184d1",
-    "semantic_hash": "d1701a0bde3d25c44646957bc84184d1"
+    "mtime": 1793816450.2878401,
+    "seen": 1793963787.7618144,
+    "ast_hash": "ddb01db07fb80365be1d807b727ce243",
+    "semantic_hash": "ddb01db07fb80365be1d807b727ce243"
   },
   "local/adduser/lang/en/local_adduser.php": {
-    "mtime": 1793695947.0161126,
-    "seen": 1793708308.7866316,
-    "ast_hash": "62a6ed7a1467942a8f1567c09755dc61",
-    "semantic_hash": "62a6ed7a1467942a8f1567c09755dc61"
+    "mtime": 1793816451.5229044,
+    "seen": 1793963787.7618165,
+    "ast_hash": "2758afa9a0161a85bc657776bb220a59",
+    "semantic_hash": "2758afa9a0161a85bc657776bb220a59"
   },
   "local/adduser/version.php": {
-    "mtime": 1793695946.5130086,
-    "seen": 1793708308.7866328,
-    "ast_hash": "97f7dee4defa4c5174e94f9cdd8956c3",
-    "semantic_hash": "97f7dee4defa4c5174e94f9cdd8956c3"
+    "mtime": 1793816451.8714862,
+    "seen": 1793963787.7618191,
+    "ast_hash": "400f61d07b4c821fdd7d4d6d32d4e09e",
+    "semantic_hash": "400f61d07b4c821fdd7d4d6d32d4e09e"
+  },
+  "moodle-versions.sh": {
+    "mtime": 1793709155.2225485,
+    "seen": 1793963787.761824,
+    "ast_hash": "c1b02bc6331a9496a2c55234cfedd90d",
+    "semantic_hash": "c1b02bc6331a9496a2c55234cfedd90d"
+  },
+  "docs/clone-to-live.md": {
+    "mtime": 1793709499.2853687,
+    "seen": 1793963787.7618294,
+    "ast_hash": "a82a12508f90782ace18c95b302fe76d",
+    "semantic_hash": "a82a12508f90782ace18c95b302fe76d"
+  },
+  "docs/course-durations.md": {
+    "mtime": 1793816762.210061,
+    "seen": 1793963787.7618315,
+    "ast_hash": "bc8d13cdd4411aa060cdeafc650e8417",
+    "semantic_hash": "bc8d13cdd4411aa060cdeafc650e8417"
   }
 }

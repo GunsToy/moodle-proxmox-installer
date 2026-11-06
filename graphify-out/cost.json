@@ -18,8 +18,14 @@
       "output_tokens": 0,
       "files": 9,
       "note": "subagent total tokens (in+out combined)"
+    },
+    {
+      "date": "2026-11-06T11:16:27.969422+00:00",
+      "input_tokens": 65354,
+      "output_tokens": 0,
+      "files": 10
     }
   ],
-  "total_input_tokens": 98001,
+  "total_input_tokens": 163355,
   "total_output_tokens": 0
 }
