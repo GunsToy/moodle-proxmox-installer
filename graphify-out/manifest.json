@@ -1,27 +1,27 @@
 {
   "install-moodle-proxmox.sh": {
     "mtime": 1794551714.4010878,
-    "seen": 1794586017.1261778,
+    "seen": 1794586588.9959052,
     "ast_hash": "ba768dcd0d89849a6a704a131ddb36b1",
-    "semantic_hash": ""
+    "semantic_hash": "ba768dcd0d89849a6a704a131ddb36b1"
   },
   "moodle-update.sh": {
     "mtime": 1794551714.405088,
-    "seen": 1794586017.126219,
+    "seen": 1794586588.996009,
     "ast_hash": "341329231a71a94e99d98520b1e4801c",
-    "semantic_hash": ""
+    "semantic_hash": "341329231a71a94e99d98520b1e4801c"
   },
   "README.md": {
     "mtime": 1794551714.3970876,
-    "seen": 1794586017.126225,
+    "seen": 1794586588.9960272,
     "ast_hash": "e7e5229b4d860995c8ef4501efddd701",
-    "semantic_hash": ""
+    "semantic_hash": "e7e5229b4d860995c8ef4501efddd701"
   },
   "local/adduser/classes/form/adduser_form.php": {
     "mtime": 1794551714.4010878,
-    "seen": 1794586017.126191,
+    "seen": 1794586588.9959335,
     "ast_hash": "e06d1bf90bd6ce6abd613e1fed6017fe",
-    "semantic_hash": ""
+    "semantic_hash": "e06d1bf90bd6ce6abd613e1fed6017fe"
   },
   "local/adduser/classes/hook_callbacks.php": {
     "mtime": 1794551714.4010878,
@@ -43,21 +43,21 @@
   },
   "local/adduser/index.php": {
     "mtime": 1794551714.4010878,
-    "seen": 1794586017.1262093,
+    "seen": 1794586588.9959836,
     "ast_hash": "099260b5d8fd3a21b87f9d25a0d50974",
-    "semantic_hash": ""
+    "semantic_hash": "099260b5d8fd3a21b87f9d25a0d50974"
   },
   "local/adduser/lang/en/local_adduser.php": {
     "mtime": 1794551714.405088,
-    "seen": 1794586017.1262128,
+    "seen": 1794586588.995993,
     "ast_hash": "43100d726e17101e1d36cd07bb932b6c",
-    "semantic_hash": ""
+    "semantic_hash": "43100d726e17101e1d36cd07bb932b6c"
   },
   "local/adduser/version.php": {
     "mtime": 1794551714.405088,
-    "seen": 1794586017.126216,
+    "seen": 1794586588.9960012,
     "ast_hash": "5e1ac476475a0353344a028a6ce2e0e3",
-    "semantic_hash": ""
+    "semantic_hash": "5e1ac476475a0353344a028a6ce2e0e3"
   },
   "moodle-versions.sh": {
     "mtime": 1794551714.405088,
