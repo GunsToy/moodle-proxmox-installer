@@ -1,79 +1,79 @@
 {
   "install-moodle-proxmox.sh": {
-    "mtime": 1793709182.3269117,
-    "seen": 1793963787.7617877,
-    "ast_hash": "42425d3330ed4ba1b7cbea9e5d234552",
-    "semantic_hash": "42425d3330ed4ba1b7cbea9e5d234552"
+    "mtime": 1794551714.4010878,
+    "seen": 1794586017.1261778,
+    "ast_hash": "ba768dcd0d89849a6a704a131ddb36b1",
+    "semantic_hash": ""
   },
   "moodle-update.sh": {
-    "mtime": 1793709252.4250925,
-    "seen": 1793963787.7618213,
-    "ast_hash": "c0ff5b37b53b0c1b2f4f06e8d422be74",
-    "semantic_hash": "c0ff5b37b53b0c1b2f4f06e8d422be74"
+    "mtime": 1794551714.405088,
+    "seen": 1794586017.126219,
+    "ast_hash": "341329231a71a94e99d98520b1e4801c",
+    "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793816452.190655,
-    "seen": 1793963787.7618272,
-    "ast_hash": "4e831e7105c7d52bbf3415c052c145ca",
-    "semantic_hash": "4e831e7105c7d52bbf3415c052c145ca"
+    "mtime": 1794551714.3970876,
+    "seen": 1794586017.126225,
+    "ast_hash": "e7e5229b4d860995c8ef4501efddd701",
+    "semantic_hash": ""
   },
   "local/adduser/classes/form/adduser_form.php": {
-    "mtime": 1793816449.61921,
-    "seen": 1793963787.7617984,
-    "ast_hash": "5aa518bcff97e1df0163949ae3387aa6",
-    "semantic_hash": "5aa518bcff97e1df0163949ae3387aa6"
+    "mtime": 1794551714.4010878,
+    "seen": 1794586017.126191,
+    "ast_hash": "e06d1bf90bd6ce6abd613e1fed6017fe",
+    "semantic_hash": ""
   },
   "local/adduser/classes/hook_callbacks.php": {
-    "mtime": 1793695947.9416301,
-    "seen": 1793708308.7866259,
+    "mtime": 1794551714.4010878,
+    "seen": 1794586017.1261976,
     "ast_hash": "36f707ed3a1fef0e3162f59a9b0633f8",
     "semantic_hash": "36f707ed3a1fef0e3162f59a9b0633f8"
   },
   "local/adduser/classes/privacy/provider.php": {
-    "mtime": 1793695948.33637,
-    "seen": 1793708308.7866273,
+    "mtime": 1794551714.4010878,
+    "seen": 1794586017.1262019,
     "ast_hash": "0edb7ad40ea29fd7fea2acf5192d9a1c",
     "semantic_hash": "0edb7ad40ea29fd7fea2acf5192d9a1c"
   },
   "local/adduser/db/hooks.php": {
-    "mtime": 1793695947.4215336,
-    "seen": 1793708308.7866292,
+    "mtime": 1794551714.4010878,
+    "seen": 1794586017.1262057,
     "ast_hash": "216b35705b80ca4f7e6549ecc7ce17cd",
     "semantic_hash": "216b35705b80ca4f7e6549ecc7ce17cd"
   },
   "local/adduser/index.php": {
-    "mtime": 1793816450.2878401,
-    "seen": 1793963787.7618144,
-    "ast_hash": "ddb01db07fb80365be1d807b727ce243",
-    "semantic_hash": "ddb01db07fb80365be1d807b727ce243"
+    "mtime": 1794551714.4010878,
+    "seen": 1794586017.1262093,
+    "ast_hash": "099260b5d8fd3a21b87f9d25a0d50974",
+    "semantic_hash": ""
   },
   "local/adduser/lang/en/local_adduser.php": {
-    "mtime": 1793816451.5229044,
-    "seen": 1793963787.7618165,
-    "ast_hash": "2758afa9a0161a85bc657776bb220a59",
-    "semantic_hash": "2758afa9a0161a85bc657776bb220a59"
+    "mtime": 1794551714.405088,
+    "seen": 1794586017.1262128,
+    "ast_hash": "43100d726e17101e1d36cd07bb932b6c",
+    "semantic_hash": ""
   },
   "local/adduser/version.php": {
-    "mtime": 1793816451.8714862,
-    "seen": 1793963787.7618191,
-    "ast_hash": "400f61d07b4c821fdd7d4d6d32d4e09e",
-    "semantic_hash": "400f61d07b4c821fdd7d4d6d32d4e09e"
+    "mtime": 1794551714.405088,
+    "seen": 1794586017.126216,
+    "ast_hash": "5e1ac476475a0353344a028a6ce2e0e3",
+    "semantic_hash": ""
   },
   "moodle-versions.sh": {
-    "mtime": 1793709155.2225485,
-    "seen": 1793963787.761824,
+    "mtime": 1794551714.405088,
+    "seen": 1794586017.1262221,
     "ast_hash": "c1b02bc6331a9496a2c55234cfedd90d",
     "semantic_hash": "c1b02bc6331a9496a2c55234cfedd90d"
   },
   "docs/clone-to-live.md": {
-    "mtime": 1793709499.2853687,
-    "seen": 1793963787.7618294,
+    "mtime": 1794551714.3970876,
+    "seen": 1794586017.1262286,
     "ast_hash": "a82a12508f90782ace18c95b302fe76d",
     "semantic_hash": "a82a12508f90782ace18c95b302fe76d"
   },
   "docs/course-durations.md": {
-    "mtime": 1793816762.210061,
-    "seen": 1793963787.7618315,
+    "mtime": 1794551714.3970876,
+    "seen": 1794586017.1262312,
     "ast_hash": "bc8d13cdd4411aa060cdeafc650e8417",
     "semantic_hash": "bc8d13cdd4411aa060cdeafc650e8417"
   }
